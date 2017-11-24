@@ -1,0 +1,97 @@
+import socket
+import sys
+import os
+import subprocess
+from threading import Thread
+from collections import defaultdict
+
+clients = []
+#exDic_super = {}
+exDic_super = defaultdict(list)
+def clientHandler(c, client_address):
+    exDic = defaultdict(list)
+    flag = False
+    while True:
+        data1=c.recv(32)	
+        if(data1.decode()=='y'):
+            c.send(data1)
+            data2 = c.recv(32)
+            if(data2.decode()=='password'):
+                output1 = "Welcome manager"
+                print (output1)
+                flag=True
+                c.send(output1.encode())
+                break
+            else:
+                output1 = "Wrong password"
+                print (output1)
+                c.send(output1.encode())
+        elif(data1.decode()=='n'):
+            output1 = "Welcome normal user"
+            print (output1)
+            c.send(output1.encode())
+            break
+        else:
+            output1 = "Wrong input."
+            print (output1)
+            c.send(output1.encode())	
+    try:
+        while True:
+            data = c.recv(32) #recieve 32 bytes of data
+            words = str(data.decode()).split()
+            if( words[0] == 'put'):
+                #exDic[words[1]] = words[2]
+                exDic[words[1]].append( words[2])
+                exDic_super[words[1]].append( words[2])
+                output = words[2]
+                print(exDic)
+                print(exDic_super)
+            elif( words[0] == 'get'):
+                if(flag== False and  words[1] in exDic ):
+                    output = str(exDic[words[1]])
+                    print(output)
+                    print(exDic)
+                else:
+                    if( flag==True and words[1] in exDic_super ):
+                        output = str(exDic_super[words[1]])
+                        print(output)
+                    else:
+                        output="null"
+                        print(output)
+            else:
+                output="null"
+                print(output)
+            c.send(output.encode())
+    except:
+        print("Connection From the client: ", client_address," has been terminated.", file=sys.stderr)
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+host = socket.gethostbyname('localhost')
+port = 2000
+server_address = (host, port)
+
+print  ("Starting up on :%s Port :%s" % server_address, file=sys.stderr)
+sock.bind(server_address)
+
+sock.listen(2) #maximum two clients can connect
+trds = [] #listen for one connection at a time
+
+for i in range(2):
+    
+    
+    c, client_address = sock.accept()
+        
+    print ("Connection From the client: ", client_address, file=sys.stderr)
+    clients.append(client_address)
+    t = Thread(target=clientHandler, args = (c, client_address))
+    trds.append(t)
+    t.start()
+
+        
+
+for t in trds:
+    t.join()
+    
+print ("Closing connection and the server", file=sys.stderr)
+c.close()     
