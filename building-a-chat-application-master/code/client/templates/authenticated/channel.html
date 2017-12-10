@@ -1,0 +1,23 @@
+<template name="channel">
+  {{> sidebar}}
+
+  <div class="conversation">
+    <div id="messages">
+      <div class="messages-list {{#if isLoading}}loading-list{{/if}}">
+        {{#each messages}}
+          {{> message}}
+        {{else}}
+          {{#if isDirect}}
+            <p class="alert alert-warning">You haven't said anything to {{username}} yet. Say hello!</p>
+          {{else}}
+            <p class="alert alert-warning">This channel is pretty quiet. You should say something!</p>
+          {{/if}}
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="message-input">
+      <input name="message" placeholder="Type your message here...">
+    </div>
+  </div>
+</template>

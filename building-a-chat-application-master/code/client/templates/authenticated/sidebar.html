@@ -1,0 +1,25 @@
+<template name="sidebar">
+  <aside class="sidebar">
+    <h5>Channels</h5>
+    <ul>
+      {{#each channel in channels}}
+        <li class="{{currentChannel channel.name}}">
+          <a href="/messages/{{channel.name}}">
+            #{{channel.name}}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+
+    <h5>Direct Messages</h5>
+    <ul>
+      {{#each user in users}}
+        <li class="{{currentChannel user.username}}">
+          <a href="/messages/@{{user.username}}">
+            {{fullName user.profile.name}}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  </aside>
+</template>
